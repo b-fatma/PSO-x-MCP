@@ -28,9 +28,9 @@ class Particle:
         # Coverage-based Probabilistic Selection
         # Selects k subsets with a probability proportional to their coverage.
         elif strategy == "probabilistic":
-            coverage_scores = np.array([len(s) for s in problem.subsets])  
+            coverage_scores = np.array([len(s) for s in self.problem.subsets])  
             probabilities = coverage_scores / coverage_scores.sum()  # Normalize to create probabilities
-            selected_indices = np.random.choice(problem.m, size=self.problem.k, replace=False, p=probabilities)
+            selected_indices = np.random.choice(self.problem.m, size=self.problem.k, replace=False, p=probabilities)
 
         # Hybrid selection that combines random and greedy
         elif strategy == "random-greedy":
@@ -47,9 +47,9 @@ class Particle:
                 selected_indices = np.random.choice(self.problem.m, size=self.problem.k, replace=False)
             else:
                 # Coverage-based Probabilistic Selection
-                coverage_scores = np.array([len(s) for s in problem.subsets])  
+                coverage_scores = np.array([len(s) for s in self.problem.subsets])  
                 probabilities = coverage_scores / coverage_scores.sum()  # Normalize to create probabilities
-                selected_indices = np.random.choice(problem.m, size=self.problem.k, replace=False, p=probabilities)
+                selected_indices = np.random.choice(self.problem.m, size=self.problem.k, replace=False, p=probabilities)
   
         position[selected_indices] = 1
 
