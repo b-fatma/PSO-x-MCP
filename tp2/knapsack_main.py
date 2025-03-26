@@ -96,7 +96,7 @@ def complexity_test():
 if __name__ == "__main__":
     random.seed()
     
-    instance = KnapsackProblem(10)
+    instance = KnapsackProblem(3)
     instance.print_instance()
 
    

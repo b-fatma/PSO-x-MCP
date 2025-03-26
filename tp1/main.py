@@ -1,8 +1,8 @@
 import random
 
 class KnapsackProblem:
-    def __init__(self):
-        self.n = random.randint(1, 10)
+    def __init__(self, n):
+        self.n = n
         self.W = random.randint(50, 100)  # Capacity between 50 and 100
         self.items = []
 
@@ -44,7 +44,7 @@ class KnapsackProblem:
 if __name__ == "__main__":
     random.seed()  
 
-    instance = KnapsackProblem()
+    instance = KnapsackProblem(10)
     instance.print_instance()
 
     print("Generate random solutions, check their validity, and evaluate them.")

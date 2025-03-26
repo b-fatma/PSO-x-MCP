@@ -17,8 +17,8 @@ class KnapsackProblem {
 
     public:
 
-    KnapsackProblem(){
-        n = 1 + rand() % 10;
+    KnapsackProblem(int n){
+        this->n = n;
         W = 50 + rand() % 51; // Capacity between 50 and 100
         for (int i = 0; i < n; ++i) {
             int value = 5 + rand() % 21; // Value between 5 and 25
@@ -83,7 +83,7 @@ int main() {
 
     srand(time(0));
 
-    KnapsackProblem* instance  = new KnapsackProblem();
+    KnapsackProblem* instance  = new KnapsackProblem(10);
 
     instance->print_instance();
 
