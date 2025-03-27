@@ -3,9 +3,8 @@ import os
 import numpy as np
 import random
 
-
 class Particle:
-    def __init__(self, problem: MaxCoveringProblem, strategy = "random-greedy"):
+    def __init__(self, problem: MaxCoveringProblem, strategy = "random"):
         self.problem = problem
         self.position = self.initialize_position(strategy)
         # VELOCITY INITIALIZATION NOT FINAL, DEPENDS ON WETHER PROBABLISTIC OR HAMMING DISTANCE PSO IS USED
