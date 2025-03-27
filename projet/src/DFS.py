@@ -145,12 +145,6 @@ class DFS:
 
         elapsed_time = time.time() - start_time  
 
-        # Time limit check
-        if elapsed_time >= self.time_limit:
-            if self.best_valid_selection is not None:
-                return self.best_valid_fitness, self.best_valid_selection, False, elapsed_time  
-            return self.best_fitness, self.best_selection, False, elapsed_time  
-
         if verbose:
             print(f"Depth: {index}, Budget Used: {current_budget}/{self.problem.k}, "
                 f"Covered Elements: {len(covered_elements)}, Selected: {selected}")
@@ -166,6 +160,12 @@ class DFS:
                 self.best_selection = selected[:]
 
             return len(covered_elements), selected, True, time.time() - start_time  
+        
+        # Time limit check
+        if elapsed_time >= self.time_limit:
+            if self.best_valid_selection is not None:
+                return self.best_valid_fitness, self.best_valid_selection, False, elapsed_time  
+            return self.best_fitness, self.best_selection, False, elapsed_time  
 
         # If all subsets are considered but k is not reached, return best partial solution
         if index == self.problem.m:
@@ -174,17 +174,8 @@ class DFS:
                 self.best_selection = selected[:]
             return self.best_fitness, self.best_selection, True, time.time() - start_time  
 
-        # Case 1: Skip the current subset
-        new_fitness, new_selection, completed_skip, _ = self.solve_time_bound_(
-            index + 1, current_budget, covered_elements, selected[:], start_time, verbose
-        )
-
-        if new_fitness > self.best_fitness:
-            self.best_fitness = new_fitness
-            self.best_selection = new_selection[:]
-
-        # Case 2: Select the current subset (only if we haven't reached k)
-        completed = completed_skip  
+        # Case 1: Select the current subset (only if we haven't reached k)
+        completed = False
         if current_budget < self.problem.k:
             new_selected = selected[:]
             new_selected[index] = 1  
@@ -201,7 +192,20 @@ class DFS:
                 self.best_fitness = new_fitness
                 self.best_selection = new_selection[:]
 
-            completed = completed_skip and completed_select  
+            completed = completed_select  # Store completion status
+
+        # Case 2: Skip the current subset (if needed)
+        if not completed:
+            new_fitness, new_selection, completed_skip, _ = self.solve_time_bound_(
+                index + 1, current_budget, covered_elements, selected[:], start_time, verbose
+            )
+
+            if new_fitness > self.best_fitness:
+                self.best_fitness = new_fitness
+                self.best_selection = new_selection[:]
+
+            completed = completed or completed_skip  # Combine completion status
+  
 
         return self.best_fitness, self.best_selection, completed, time.time() - start_time  
 

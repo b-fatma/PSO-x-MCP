@@ -57,11 +57,13 @@ class DFSTest:
 
 if __name__ == "__main__":
     dataset_folder = "../data"
-    output_file = "../stats/dfs_scp4.csv"
-    time_limit = 3 * 60 * 60  # (3 hours)
-    test_files = [filename for filename in os.listdir(dataset_folder) if filename.startswith("scp4")]  
+    output_file = "../stats/dfs_modified.csv"
+    # print(output_file)
+    time_limit = 60 * 60  # (1 hour)
+    test_files = [filename for filename in os.listdir(dataset_folder)]  
+    # test_files = ["scpc1.txt"]
 
-    dfs_tester = DFSTest(dataset_folder, time_limit=time_limit, output_file=output_file)
+    dfs_tester = DFSTest(dataset_folder, time_limit=10, output_file=output_file)
     dfs_tester.run_tests(test_files)
     dfs_tester.print_summary()
     dfs_tester.save_results_to_csv()

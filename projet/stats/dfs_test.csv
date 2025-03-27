@@ -1,0 +1,2 @@
+filename,m,n,k,fitness,used_budget,completed,valid,execution_time(s)
+scpc1.txt,400,4000,266,3987,266,True,True,0.027204513549804688
