@@ -2,6 +2,10 @@ import os
 import csv
 from MaxCoveringProblem import MaxCoveringProblem
 from DFS import DFS  
+import sys
+
+# sys.setrecursionlimit(10000)
+
 
 class DFSTest:
     def __init__(self, dataset_folder, time_limit=10, output_file="dfs_results.csv"):
@@ -57,9 +61,9 @@ class DFSTest:
 
 if __name__ == "__main__":
     dataset_folder = "../data"
-    output_file = "../stats/dfs_scp4.csv"
-    time_limit = 3 * 60 * 60  # (3 hours)
-    test_files = [filename for filename in os.listdir(dataset_folder) if filename.startswith("scp4")]  
+    output_file = "../stats/dfs_1h.csv"
+    time_limit = 60 * 60  # (1 hour)
+    test_files = sorted([filename for filename in os.listdir(dataset_folder)])  
 
     dfs_tester = DFSTest(dataset_folder, time_limit=time_limit, output_file=output_file)
     dfs_tester.run_tests(test_files)

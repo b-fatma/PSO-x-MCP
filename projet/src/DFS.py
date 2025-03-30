@@ -1,9 +1,12 @@
 from MaxCoveringProblem import MaxCoveringProblem
 import time
+import sys
+
 
 
 class DFS:
     def __init__(self, problem, time_limit=10):  
+        sys.setrecursionlimit(10000)
         self.problem = problem
         self.time_limit = time_limit
         self.best_valid_fitness = float('-inf')  # Stores the best valid solution found
@@ -145,12 +148,6 @@ class DFS:
 
         elapsed_time = time.time() - start_time  
 
-        # Time limit check
-        if elapsed_time >= self.time_limit:
-            if self.best_valid_selection is not None:
-                return self.best_valid_fitness, self.best_valid_selection, False, elapsed_time  
-            return self.best_fitness, self.best_selection, False, elapsed_time  
-
         if verbose:
             print(f"Depth: {index}, Budget Used: {current_budget}/{self.problem.k}, "
                 f"Covered Elements: {len(covered_elements)}, Selected: {selected}")
@@ -166,6 +163,12 @@ class DFS:
                 self.best_selection = selected[:]
 
             return len(covered_elements), selected, True, time.time() - start_time  
+        
+        # Time limit check
+        if elapsed_time >= self.time_limit:
+            if self.best_valid_selection is not None:
+                return self.best_valid_fitness, self.best_valid_selection, False, elapsed_time  
+            return self.best_fitness, self.best_selection, False, elapsed_time  
 
         # If all subsets are considered but k is not reached, return best partial solution
         if index == self.problem.m:
@@ -204,9 +207,11 @@ class DFS:
             completed = completed_skip and completed_select  
 
         return self.best_fitness, self.best_selection, completed, time.time() - start_time  
+    
 
-# if __name__ == "__main__":
-#     problem = MaxCoveringProblem("../data/scp41.txt")
-#     dfs_solver  = DFS(problem)
-#     best_fitness, best_selection, completed = dfs_solver.solve_time_bound(verbose=True)
-#     print(f"Fitness = {best_fitness}, Used budget = {sum(best_selection)} / {problem.k}, Completed? {completed}")
+
+if __name__ == "__main__":
+    problem = MaxCoveringProblem("../data/scp41.txt")
+    dfs_solver  = DFS(problem, time_limit=10000)
+    best_fitness, best_selection, completed, exec_time = dfs_solver.solve_time_bound_()
+    print(f"Fitness = {best_fitness}, Used budget = {sum(best_selection)} / {problem.k}, Execution time {exec_time}")
