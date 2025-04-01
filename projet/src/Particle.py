@@ -173,8 +173,8 @@ class ParticleProbabilistic(Particle):
 
     def update_position(self, tf_type="sigmoid", selection_type="stochastic"):
         super().update_position()
-        # probs = self.transfer_function(tf_type)
-        probs = self.velocity
+        probs = self.transfer_function(tf_type)
+        # probs = self.velocity
 
         if selection_type == "stochastic":
             if probs.sum() > 0:  # Prevent division by zero

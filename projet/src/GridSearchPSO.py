@@ -29,13 +29,13 @@ def main():
 
     # Define the parameter grid for grid search
     param_grid = {
-        'num_particles': [30, 50, 100],
+        'num_particles': [10, 50, 100],
         'max_iterations': [100, 1000, 3000],
-        'inertia_type': ['fixed', 'linear', 'nonlinear'],
+        'inertia_type': ['fixed', 'linear'],
         'inertia_value': [0.2, 0.5, 0.7],  # Only used if inertia_type is 'fixed'
-        'neighborhood_size': [None, 10],
-        'c1': [1.5],
-        'c2': [1.5],
+        'neighborhood_size': [None, 10, 30],
+        'c1': [1.5, 2.0],
+        'c2': [1.5, 2.0],
         'dist_type': ['HD', 'bit-wise', 'wHD'],
         'selection_type': ['stochastic', 'deterministic', 'standard']
     }
