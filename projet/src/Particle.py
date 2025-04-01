@@ -164,21 +164,38 @@ class ParticleProbabilistic(Particle):
         mutation_mask = np.random.rand(self.problem.m) < mutation_rate
         self.velocity[mutation_mask] *= -1
 
-     
+    def enforce_constraint(self):
+        one_indices = np.where(self.position == 1)[0]
+        excess = len(one_indices) - self.problem.k
+
+        if excess > 0:
+            self.position[np.random.choice(one_indices, size=excess, replace=False)] = 0   
+
     def update_position(self, tf_type="sigmoid", selection_type="stochastic"):
         super().update_position()
-        probs = self.transfer_function(tf_type)
+        # probs = self.transfer_function(tf_type)
+        probs = self.velocity
 
         if selection_type == "stochastic":
-            # Stochastic selection of k positions based on probabilities
-            selected_indices = np.random.choice(np.arange(self.problem.m), size=self.problem.k, p=probs/probs.sum(), replace=False)
-        else:
-            # Select k best velocities: initial experiments show that this leads to early convergence because of lack of exploration
-            selected_indices = np.argsort(-probs)[:self.problem.k]
+            if probs.sum() > 0:  # Prevent division by zero
+                selected_indices = np.random.choice(
+                    np.arange(self.problem.m), size=self.problem.k, 
+                    p=probs / probs.sum(), replace=False
+                )
+            else:
+                selected_indices = np.random.choice(np.arange(self.problem.m), size=self.problem.k, replace=False)
 
-        self.position[:] = 0
-        self.position[selected_indices] = 1
-        # self.position = np.array([1 if random.random() < p else 0 for p in probs])
+            self.position[:] = 0  # Reset position
+            self.position[selected_indices] = 1  
+
+        elif selection_type == "deterministic":
+            selected_indices = np.argsort(-probs)[:self.problem.k]
+            self.position[:] = 0  
+            self.position[selected_indices] = 1  
+
+        elif selection_type == "standard":
+            self.position = np.array([1 if random.random() < p else 0 for p in probs])
+            self.enforce_constraint()
 
 
 
