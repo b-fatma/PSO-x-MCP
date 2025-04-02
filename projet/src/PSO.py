@@ -59,6 +59,7 @@ class PSO:
         return best_neighbor.best_position
     
     def optimize(self, verbose=False):
+        # Move the time tracking here inside the method
         start_time = time.time()  # Start timer
         
         for iteration in range(self.max_iterations):
@@ -85,7 +86,7 @@ class PSO:
             if verbose:
                 print(f"Iteration {iteration + 1}/{self.max_iterations} - Best Score: {self.global_best_score}")
         
-        end_time = time.time()  # End timer
+        end_time = time.time()  # End timer after the full loop
         print(f"Total execution time: {end_time - start_time:.2f} seconds")
         
         return self.global_best_position, self.global_best_score
