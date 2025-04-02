@@ -1,0 +1,7 @@
+change the logic of max_iterations: add a global max_iterations + a list of checkpoints in the PSO class
+add iteration number in the return of optimize 
+add logic to save results to csv file
+research velocity intilization + clamping / scaling (if it s necessary), we can also do it by type (bit-wise/ HD)
+add execution time to PSO 
+complete the RParticle class
+in PSO add the class parameter partcile_type: in initialize positions add if else to construct particles depending on particle type
