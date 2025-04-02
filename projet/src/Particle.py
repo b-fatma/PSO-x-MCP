@@ -1,11 +1,97 @@
-from MaxCoveringProblem import MaxCoveringProblem
-import os
+import time
 import numpy as np
 import random
-from math import ceil
+from MaxCoveringProblem import MaxCoveringProblem
+
+class Parameters:
+    """Classe pour encapsuler tous les paramètres configurables du PSO"""
+    def __init__(self, num_particles=50, max_iterations=1000, strategy="random", 
+                 inertia_type="fixed", inertia_value=0.7, neighborhood_size=None, 
+                 c1=1.5, c2=1.5, dist_type="HD", selection_type="stochastic", 
+                 mutate=False, mutation_rate=0.1, particle_type="probabilistic"):
+        self.num_particles = num_particles
+        self.max_iterations = max_iterations
+        self.initialization_strategy = strategy
+        self.inertia_type = inertia_type
+        self.inertia_value = inertia_value
+        self.neighborhood_size = neighborhood_size if neighborhood_size else num_particles
+        self.c1 = c1
+        self.c2 = c2
+        self.dist_type = dist_type
+        self.selection_type = selection_type
+        self.mutate = mutate
+        self.mutation_rate = mutation_rate
+        self.particle_type = particle_type  # Nouveau paramètre
+
+class PSO:
+    def __init__(self, problem: MaxCoveringProblem, params: Parameters):
+        self.problem = problem
+        self.params = params
+        self.global_best_position = None
+        self.global_best_score = 0
+        self.particles = self.initialize_particles()
+
+        print(f"Initial best particle fitness: {self.global_best_score}")
+
+    def initialize_particles(self):
+        particles = []
+        for _ in range(self.params.num_particles):
+            # Création des particules selon le type spécifié
+            if self.params.particle_type == "probabilistic":
+                particle = ParticleProbabilistic(self.problem, self.params.initialization_strategy)
+            elif self.params.particle_type == "flipcount":
+                particle = ParticleFlipCount(self.problem, self.params.initialization_strategy)
+            elif self.params.particle_type == "rparticle":
+                particle = RParticle(self.problem, self.params.initialization_strategy)
+            else:  # default
+                particle = Particle(self.problem, self.params.initialization_strategy)
+                
+            particles.append(particle)
+            if particle.best_score > self.global_best_score:
+                self.global_best_position = np.copy(particle.best_position)
+                self.global_best_score = particle.best_score
+        return particles
+    
+    def get_inertia(self, iteration):
+        if self.params.inertia_type == 'fixed':
+            return self.params.inertia_value
+        elif self.params.inertia_type == 'linear':
+            return 0.9 - (0.5 * (iteration / self.params.max_iterations))
+        elif self.params.inertia_type == 'nonlinear':
+            return 0.9 * np.exp(-2 * (iteration / self.params.max_iterations))
+    
+    def get_neighborhood_best(self):
+        neighborhood = np.random.choice(self.particles, self.params.neighborhood_size, replace=False)
+        best_neighbor = max(neighborhood, key=lambda p: p.best_score)
+        return best_neighbor.best_position
+    
+    def optimize(self, verbose=False):
+        for iteration in range(self.params.max_iterations):
+            w = self.get_inertia(iteration)
+            for i, particle in enumerate(self.particles):
+                best_position = self.get_neighborhood_best() if self.params.neighborhood_size < self.params.num_particles else self.global_best_position
+                particle.update_velocity(best_position, w, self.params.c1, self.params.c2, self.params.dist_type)
+                if self.params.mutate:
+                    particle.mutate_velocity(self.params.mutation_rate)
+                particle.update_position(selection_type=self.params.selection_type)
+                particle.update_pbest()
+                
+                if particle.best_score > self.global_best_score:
+                    self.global_best_position = np.copy(particle.best_position)
+                    self.global_best_score = particle.best_score
+
+                if self.global_best_score == self.problem.n:
+                    if verbose:
+                        print(f"EARLY STOPPING Iteration {iteration + 1}/{self.params.max_iterations} - Best Score: {self.global_best_score}")
+                    return self.global_best_position, self.global_best_score
+            
+            if verbose:
+                print(f"Iteration {iteration + 1}/{self.params.max_iterations} - Best Score: {self.global_best_score}")
+        
+        return self.global_best_position, self.global_best_score
 
 class Particle:
-    def __init__(self, problem: MaxCoveringProblem, strategy = "random"):
+    def __init__(self, problem: MaxCoveringProblem, strategy="random"):
         self.problem = problem
         self.position = self.initialize_position(strategy)
         self.best_position = np.copy(self.position)
@@ -13,86 +99,43 @@ class Particle:
 
     def initialize_position(self, strategy: str):
         position = np.zeros(self.problem.m, dtype=int)
-
-        # Randomly select exactly k subsets
+        
         if strategy == "random":
             selected_indices = np.random.choice(self.problem.m, size=self.problem.k, replace=False)
-        
-        # Select k subsets that cover the most uncovered elements, 
-        # the underlying assumption is that subsets with more elements, combined, cover more elements
-        # it is important to note that this assumption is unwarranted 
         elif strategy == "greedy":
             selected_indices = np.argsort([-len(s) for s in self.problem.subsets])[:self.problem.k]
-
-        # Coverage-based Probabilistic Selection
-        # Selects k subsets with a probability proportional to their coverage.
         elif strategy == "probabilistic":
             coverage_scores = np.array([len(s) for s in self.problem.subsets])  
-            probabilities = coverage_scores / coverage_scores.sum()  # Normalize to create probabilities
+            probabilities = coverage_scores / coverage_scores.sum()
             selected_indices = np.random.choice(self.problem.m, size=self.problem.k, replace=False, p=probabilities)
-
-        # Hybrid selection that combines random and greedy
         elif strategy == "random-greedy":
             if random.random() < 0.5:
-                # Random
                 selected_indices = np.random.choice(self.problem.m, size=self.problem.k, replace=False)
             else:
-                # Greedy
                 selected_indices = np.argsort([-len(s) for s in self.problem.subsets])[:self.problem.k]
-
         elif strategy == "random-probabilistic":
             if random.random() < 0.5:
-                # Random
                 selected_indices = np.random.choice(self.problem.m, size=self.problem.k, replace=False)
             else:
-                # Coverage-based Probabilistic Selection
                 coverage_scores = np.array([len(s) for s in self.problem.subsets])  
-                probabilities = coverage_scores / coverage_scores.sum()  # Normalize to create probabilities
+                probabilities = coverage_scores / coverage_scores.sum()
                 selected_indices = np.random.choice(self.problem.m, size=self.problem.k, replace=False, p=probabilities)
   
         position[selected_indices] = 1
-
         return position
     
     def evaluate(self):
-        # Calculate the number of unique covered elements for the current position
         covered_elements = set().union(*[self.problem.subsets[i] for i in range(self.problem.m) if self.position[i] == 1])
-        return len(covered_elements) 
+        return len(covered_elements)
     
-    
-    def distance(self, best, best_score = 0, type="HD"):
-            """
-            Bitwise XOR (Standard in BPSO) aka Hamming distance
-            OR Normalized hamming distance (we divide by /m), helps in velocity scaling
-                (x−pbest)=sum(x xor pbest)
-                Used in standard Binary PSO (Kennedy & Eberhart, 1997).
-
-            Set-Based Difference (for Covering Problems) | it is computationally expensive 
-                (x−pbest)={subsets in pbest but not in x}
-
-                Instead of treating x and pbest​ as bit vectors, treat them as sets of selected elements.
-
-                This is useful for set-based optimization problems like MCP because it explicitly tells which elements are missing rather than just counting mismatches.
-
-            Weighted Hamming Distance
-            (We can normalized wHD as well) 
-                wDH=sum(wi(xi xor pbest,i))
-
-                Assign different weights to different bits based on their importance (the coverage contribution of a subset).
-
-                Useful for MCP where some subsets cover more elements than others.
-            """
-            if type == "HD":
-                return np.sum(np.logical_xor(self.position, best))
-            
-            elif type == "wHD":
-                return np.sum(np.logical_xor(self.position, best) * np.array([len(s) for s in self.problem.subsets]))
-            
-            elif type == "bit-wise":
-                return best - self.position
-            
+    def distance(self, best, best_score=0, type="HD"):
+        if type == "HD":
+            return np.sum(np.logical_xor(self.position, best))
+        elif type == "wHD":
+            return np.sum(np.logical_xor(self.position, best) * np.array([len(s) for s in self.problem.subsets]))
+        elif type == "bit-wise":
+            return best - self.position
         
-    # TO BE IMPLEMENTED, DEPENDS ON WETHER PROBABLISTIC OR HAMMING DISTANCE PSO IS USED
     def update_position(self):
         pass
 
@@ -102,10 +145,8 @@ class Particle:
             self.best_position = self.position.copy()
             self.best_score = score
 
-
-
 class ParticleProbabilistic(Particle):
-    def __init__(self, problem: MaxCoveringProblem, strategy = "random"):
+    def __init__(self, problem: MaxCoveringProblem, strategy="random"):
         super().__init__(problem, strategy)
         self.velocity = np.random.uniform(0, 1, size=problem.m)
 
@@ -117,10 +158,7 @@ class ParticleProbabilistic(Particle):
     def update_velocity(self, global_best, w=0.2, c1=1.5, c2=1.5, dist_type="HD"):
         r1, r2 = random.random(), random.random()       
         self.velocity = w * self.velocity + c1 * r1 * self.distance(self.best_position, type=dist_type) + c2 * r2 * self.distance(global_best, dist_type)
-        # Min max scaling (mean 0, std dev 8), to prevent velocities from overshooting
-        # self.velocity = 8 * (self.velocity - np.min(self.velocity)) / (np.max(self.velocity) - np.min(self.velocity)) - 4
 
-    # Based on the paper :  https://www.researchgate.net/publication/31208097_Binary_Particle_Swarm_Optimization_with_Bit_Change_Mutation
     def mutate_velocity(self, mutation_rate=0.3):
         mutation_mask = np.random.rand(self.problem.m) < mutation_rate
         self.velocity[mutation_mask] *= -1
@@ -128,83 +166,101 @@ class ParticleProbabilistic(Particle):
     def enforce_constraint(self):
         one_indices = np.where(self.position == 1)[0]
         excess = len(one_indices) - self.problem.k
-
         if excess > 0:
             self.position[np.random.choice(one_indices, size=excess, replace=False)] = 0   
 
     def update_position(self, tf_type="sigmoid", selection_type="stochastic"):
         super().update_position()
         probs = self.transfer_function(tf_type)
-        # probs = self.velocity
 
         if selection_type == "stochastic":
-            if probs.sum() > 0:  # Prevent division by zero
+            if probs.sum() > 0:
                 selected_indices = np.random.choice(
                     np.arange(self.problem.m), size=self.problem.k, 
-                    p=probs / probs.sum(), replace=False
+                    p=probs/probs.sum(), replace=False
                 )
             else:
                 selected_indices = np.random.choice(np.arange(self.problem.m), size=self.problem.k, replace=False)
-
-            self.position[:] = 0  # Reset position
+            self.position[:] = 0
             self.position[selected_indices] = 1  
-
-        # NO
         elif selection_type == "deterministic":
             selected_indices = np.argsort(-probs)[:self.problem.k]
             self.position[:] = 0  
             self.position[selected_indices] = 1  
-
         elif selection_type == "standard":
             self.position = np.array([1 if random.random() < p else 0 for p in probs])
             self.enforce_constraint()
 
+class ParticleFlipCount(Particle):
+    def __init__(self, problem: MaxCoveringProblem, strategy="random"):
+        super().__init__(problem, strategy)
+        self.velocity = np.zeros(problem.m)  # Vitesse représentant le nombre de flips
 
+    def update_velocity(self, global_best, w=0.2, c1=1.5, c2=1.5, dist_type="HD"):
+        r1, r2 = random.random(), random.random()
+        cognitive = c1 * r1 * self.distance(self.best_position, type=dist_type)
+        social = c2 * r2 * self.distance(global_best, type=dist_type)
+        self.velocity = w * self.velocity + cognitive + social
+
+    def update_position(self):
+        # Convert velocity to flip probabilities
+        flip_probs = 1 / (1 + np.exp(-self.velocity))
+        
+        # Apply flips
+        for i in range(len(self.position)):
+            if random.random() < flip_probs[i]:
+                self.position[i] = 1 - self.position[i]  # Flip the bit
+        
+        # Repair solution if needed
+        self.enforce_constraints()
+
+    def enforce_constraints(self):
+        """Ensure exactly k subsets are selected"""
+        selected = np.where(self.position == 1)[0]
+        if len(selected) > self.problem.k:
+            # Randomly deselect excess subsets
+            to_deselect = np.random.choice(selected, size=len(selected)-self.problem.k, replace=False)
+            self.position[to_deselect] = 0
+        elif len(selected) < self.problem.k:
+            # Randomly select additional subsets
+            unselected = np.where(self.position == 0)[0]
+            to_select = np.random.choice(unselected, size=self.problem.k-len(selected), replace=False)
+            self.position[to_select] = 1
 
 class RParticle(Particle):
-    def __init__(self, problem, strategy="random"):
+    """Exemple de classe supplémentaire pour démontrer l'extensibilité"""
+    def __init__(self, problem: MaxCoveringProblem, strategy="random"):
         super().__init__(problem, strategy)
+        self.velocity = np.random.normal(0, 1, size=problem.m)
 
+    def update_velocity(self, global_best, w=0.2, c1=1.5, c2=1.5, dist_type="HD"):
+        r1, r2 = random.random(), random.random()
+        self.velocity = w * self.velocity + c1 * r1 * (self.best_position - self.position) + c2 * r2 * (global_best - self.position)
 
+    def update_position(self):
+        self.position = (self.position + self.velocity > 0).astype(int)
+        self.enforce_constraints()
 
-
-
-
-
-
-
+    def enforce_constraints(self):
+        selected = np.where(self.position == 1)[0]
+        if len(selected) != self.problem.k:
+            self.position = self.initialize_position("random")
 
 if __name__ == "__main__":
-    # strategies = ["greedy", "random", "probabilistic", "random-greedy", "random-probabilistic"]
-    strategies = ["greedy", "random"]
-    dir = "../data/"
-    for filename in os.listdir(dir):
-        print(filename)
-        problem  = MaxCoveringProblem(dir + filename)
-        print(filename, problem.m, problem.n, len(problem.subsets), problem.k)
-        for strategy in strategies:
-            # for _ in range(100):
-                particle = Particle(problem, strategy)
-                # if particle.best_score != problem.n:
-                #     print("Non perfect position")
-                print(strategy, particle.best_score, problem.n, particle.best_score / problem.n)
-            # print([problem.subsets[i] for i in range(problem.m) if particle.position[i] == 1])
-        # break
-
-    # filename = "scp41.txt"
-    # for _ in range(5):
-    #     problem  = MaxCoveringProblem(dir + filename)
-    #     particle = Particle(problem, "random")
-    #     print("Randomly selected subsets:", particle.position, particle.best_score)
-
-
-    # if __name__ == "__main__":
-#     filename = "../testscp.txt"
-
-#     problem  = MaxCoveringProblem(filename)
-#     print(f"filename {filename}, m {problem.m}, n {problem.n}, subsets size = m {len(problem.subsets)}, subsets {problem.subsets}, k {problem.k}")
-#     print(max([len(subset) for subset in problem.subsets]))
-#     print(min([len(subset) for subset in problem.subsets]))
-#     print(len(np.unique(np.concatenate([list(subset) for subset in problem.subsets]))))
-
-
+    filename = "../data/scpc2.txt"  
+    problem = MaxCoveringProblem(filename)
+    
+    # Test avec différentes configurations
+    configs = [
+        Parameters(particle_type="probabilistic", num_particles=30, max_iterations=500),
+        Parameters(particle_type="flipcount", num_particles=30, max_iterations=500),
+        Parameters(particle_type="rparticle", num_particles=30, max_iterations=500)
+    ]
+    
+    for config in configs:
+        print(f"\nTesting {config.particle_type} particles...")
+        start_time = time.time()
+        swarm = PSO(problem, config)
+        best_pos, best_score = swarm.optimize(verbose=True)
+        print(f"Best score: {best_score}/{problem.n}")
+        print(f"Time: {time.time()-start_time:.2f}s")
