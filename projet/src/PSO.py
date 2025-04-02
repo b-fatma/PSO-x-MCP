@@ -1,9 +1,10 @@
+import time  # Importer le module time
 from MaxCoveringProblem import MaxCoveringProblem
 from Particle import ParticleFlipCount, ParticleProbabilistic
 import numpy as np
 
 class PSO:
-    def __init__(self, problem: MaxCoveringProblem, num_particles=50, max_iterations=1000, strategy="random", inertia_type="fixed", inertia_value=0.7, neighborhood_size=None, c1=1.5, c2=1.5, dist_type="HD", selection_type="stochastic", mutate=False, mutation_rate=0.1, ):
+    def __init__(self, problem: MaxCoveringProblem, num_particles=50, max_iterations=1000, strategy="random", inertia_type="fixed", inertia_value=0.7, neighborhood_size=None, c1=1.5, c2=1.5, dist_type="HD", selection_type="stochastic", mutate=False, mutation_rate=0.1):
         self.problem = problem
         self.num_particles = num_particles
         self.max_iterations = max_iterations
@@ -77,8 +78,17 @@ class PSO:
 if __name__ == "__main__":
     filename = "../data/scpc2.txt"  
     problem = MaxCoveringProblem(filename)
+    
+    start_time = time.time()  # Démarrer le chrono
+    
     swarm = PSO(problem, num_particles=50, neighborhood_size=30, inertia_type="linear", max_iterations=5000, strategy="random", dist_type="bit-wise", selection_type="standard")
     best_position, best_score = swarm.optimize(verbose=True)
+    
+    end_time = time.time()  # Arrêter le chrono
+    
+    execution_time = end_time - start_time  # Calculer le temps d'exécution
+
     print("Best Position:", best_position)
     print("Best Score:", best_score)
-    print("n", problem.n)
+    print("n:", problem.n)
+    print(f"Execution Time: {execution_time:.4f} seconds")  # Afficher le temps avec 4 décimales
