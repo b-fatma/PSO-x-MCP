@@ -1,7 +1,7 @@
-import time  
 from MaxCoveringProblem import MaxCoveringProblem
-from Particle import Particle, ParticleFlipCount, ParticleProbabilistic
+import time
 import numpy as np
+from Particle import ParticleFlipCount, ParticleProbabilistic, BParticle
 
 class Parameters:
     def __init__(self, num_particles=50, max_iterations=1000, strategy="random", inertia_type="fixed", 
@@ -19,7 +19,7 @@ class Parameters:
         self.selection_type = selection_type
         self.mutate = mutate
         self.mutation_rate = mutation_rate
-        self.particle_type = particle_type  # Ajout du type de particule
+        self.particle_type = particle_type
 
 class PSO:
     def __init__(self, problem: MaxCoveringProblem, params: Parameters):
@@ -27,7 +27,6 @@ class PSO:
         self.params = params
         self.global_best_position = None
         self.global_best_score = 0
-        
         self.particles = self.initialize_particles()
 
     def initialize_particles(self):
@@ -37,9 +36,11 @@ class PSO:
                 particle = ParticleFlipCount(self.problem, self.params.strategy)
             elif self.params.particle_type == "probabilistic":
                 particle = ParticleProbabilistic(self.problem, self.params.strategy)
+            elif self.params.particle_type == "bparticle":
+                particle = BParticle(self.problem, self.params.strategy)
             else:
-                particle = Particle(self.problem, self.params.strategy)
-            
+                particle = ParticleProbabilistic(self.problem, self.params.strategy)
+
             particles.append(particle)
             if particle.best_score > self.global_best_score:
                 self.global_best_position = np.copy(particle.best_position)
@@ -47,19 +48,6 @@ class PSO:
 
         print(f"Initial best particle fitness: {self.global_best_score}")
         return particles
-    
-    def get_inertia(self, iteration):
-        if self.params.inertia_type == 'fixed':
-            return self.params.inertia_value
-        elif self.params.inertia_type == 'linear':
-            return 0.9 - (0.5 * (iteration / self.params.max_iterations))
-        elif self.params.inertia_type == 'nonlinear':
-            return 0.9 * np.exp(-2 * (iteration / self.params.max_iterations))
-    
-    def get_neighborhood_best(self):
-        neighborhood = np.random.choice(self.particles, self.params.neighborhood_size, replace=False)
-        best_neighbor = max(neighborhood, key=lambda p: p.best_score)
-        return best_neighbor.best_position
     
     def optimize(self, verbose=False):
         for iteration in range(self.params.max_iterations):
@@ -93,7 +81,7 @@ if __name__ == "__main__":
     start_time = time.time()  
     
     params = Parameters(num_particles=50, neighborhood_size=30, inertia_type="linear", max_iterations=5000, 
-                        strategy="random", dist_type="bit-wise", selection_type="standard", particle_type="probabilistic")
+                        strategy="random", dist_type="bit-wise", selection_type="standard", particle_type="bparticle")
     swarm = PSO(problem, params)
     best_position, best_score = swarm.optimize(verbose=True)
     
