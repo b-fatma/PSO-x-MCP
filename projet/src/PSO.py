@@ -1,10 +1,12 @@
-import time  # Importer le module time
+import time  
 from MaxCoveringProblem import MaxCoveringProblem
-from Particle import ParticleFlipCount, ParticleProbabilistic
+from Particle import Particle, ParticleFlipCount, ParticleProbabilistic
 import numpy as np
 
 class Parameters:
-    def __init__(self, num_particles=50, max_iterations=1000, strategy="random", inertia_type="fixed", inertia_value=0.7, neighborhood_size=None, c1=1.5, c2=1.5, dist_type="HD", selection_type="stochastic", mutate=False, mutation_rate=0.1):
+    def __init__(self, num_particles=50, max_iterations=1000, strategy="random", inertia_type="fixed", 
+                 inertia_value=0.7, neighborhood_size=None, c1=1.5, c2=1.5, dist_type="HD", 
+                 selection_type="stochastic", mutate=False, mutation_rate=0.1, particle_type="standard"):
         self.num_particles = num_particles
         self.max_iterations = max_iterations
         self.strategy = strategy
@@ -17,6 +19,7 @@ class Parameters:
         self.selection_type = selection_type
         self.mutate = mutate
         self.mutation_rate = mutation_rate
+        self.particle_type = particle_type  # Ajout du type de particule
 
 class PSO:
     def __init__(self, problem: MaxCoveringProblem, params: Parameters):
@@ -30,7 +33,13 @@ class PSO:
     def initialize_particles(self):
         particles = []
         for _ in range(self.params.num_particles):
-            particle = ParticleProbabilistic(self.problem, self.params.strategy)
+            if self.params.particle_type == "flip":
+                particle = ParticleFlipCount(self.problem, self.params.strategy)
+            elif self.params.particle_type == "probabilistic":
+                particle = ParticleProbabilistic(self.problem, self.params.strategy)
+            else:
+                particle = Particle(self.problem, self.params.strategy)
+            
             particles.append(particle)
             if particle.best_score > self.global_best_score:
                 self.global_best_position = np.copy(particle.best_position)
@@ -83,7 +92,8 @@ if __name__ == "__main__":
     
     start_time = time.time()  
     
-    params = Parameters(num_particles=50, neighborhood_size=30, inertia_type="linear", max_iterations=5000, strategy="random", dist_type="bit-wise", selection_type="standard")
+    params = Parameters(num_particles=50, neighborhood_size=30, inertia_type="linear", max_iterations=5000, 
+                        strategy="random", dist_type="bit-wise", selection_type="standard", particle_type="probabilistic")
     swarm = PSO(problem, params)
     best_position, best_score = swarm.optimize(verbose=True)
     
@@ -94,4 +104,4 @@ if __name__ == "__main__":
     print("Best Position:", best_position)
     print("Best Score:", best_score)
     print("n:", problem.n)
-    print(f"Execution Time: {execution_time:.4f} seconds")  
+    print(f"Execution Time: {execution_time:.4f} seconds")
