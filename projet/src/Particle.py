@@ -129,3 +129,13 @@ class ParticleProbabilistic(Particle):
         elif selection_type == "standard":
             self.position = np.array([1 if random.random() < p else 0 for p in probs])
             self.enforce_constraint()
+class BParticle(ParticleProbabilistic):
+    def __init__(self, problem, strategy="random"):
+        super().__init__(problem, strategy)
+        self.velocity = np.random.uniform(-1, 1, size=problem.m)
+
+    def update_velocity(self, global_best, w=0.2, c1=1.5, c2=1.5, dist_type="HD"):
+        super().update_velocity(global_best, w, c1, c2, dist_type)
+
+    def update_position(self, selection_type="stochastic"):
+        super().update_position(tf_type="sigmoid", selection_type=selection_type)
