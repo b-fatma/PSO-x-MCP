@@ -63,6 +63,11 @@ class PSO:
                 if particle.best_score > self.global_best_score:
                     self.global_best_position = np.copy(particle.best_position)
                     self.global_best_score = particle.best_score
+
+                if self.global_best_score == self.problem.n:
+                    if verbose:
+                        print(f"EARLY STOPPING Iteration {iteration + 1}/{self.max_iterations} - Best Score: {self.global_best_score}")
+                    return self.global_best_position, self.global_best_score
             
             if verbose:
                 print(f"Iteration {iteration + 1}/{self.max_iterations} - Best Score: {self.global_best_score}")
@@ -70,10 +75,10 @@ class PSO:
         return self.global_best_position, self.global_best_score
 
 if __name__ == "__main__":
-    filename = "../data/scp41.txt"  
+    filename = "../data/scpc2.txt"  
     problem = MaxCoveringProblem(filename)
-    swarm = PSO(problem, num_particles=50, max_iterations=1000, strategy="random-greedy")
-    best_position, best_score = swarm.optimize(dist_type="wHD", selection_type="stochastic", verbose=True)
+    swarm = PSO(problem, num_particles=50, neighborhood_size=30, inertia_type="linear", max_iterations=5000, strategy="random", dist_type="bit-wise", selection_type="standard")
+    best_position, best_score = swarm.optimize(verbose=True)
     print("Best Position:", best_position)
     print("Best Score:", best_score)
     print("n", problem.n)

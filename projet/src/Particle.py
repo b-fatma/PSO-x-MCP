@@ -8,8 +8,6 @@ class Particle:
     def __init__(self, problem: MaxCoveringProblem, strategy = "random"):
         self.problem = problem
         self.position = self.initialize_position(strategy)
-        # VELOCITY INITIALIZATION NOT FINAL, DEPENDS ON WETHER PROBABLISTIC OR HAMMING DISTANCE PSO IS USED
-        self.velocity = np.random.uniform(-1, 1, size=problem.m)
         self.best_position = np.copy(self.position)
         self.best_score = self.evaluate()
 
@@ -59,10 +57,6 @@ class Particle:
     def evaluate(self):
         # Calculate the number of unique covered elements for the current position
         covered_elements = set().union(*[self.problem.subsets[i] for i in range(self.problem.m) if self.position[i] == 1])
-        # covered_elements = set()
-        # for i in range(self.problem.m):
-        #     if self.position[i] == 1:
-        #         covered_elements.update(self.problem.subsets[i])
         return len(covered_elements) 
     
     
@@ -91,28 +85,12 @@ class Particle:
             if type == "HD":
                 return np.sum(np.logical_xor(self.position, best))
             
-            elif type == "norm-HD":
-                return np.sum(np.logical_xor(self.position, best)) / self.problem.m
-
             elif type == "wHD":
                 return np.sum(np.logical_xor(self.position, best) * np.array([len(s) for s in self.problem.subsets]))
             
-            elif type  == "norm-wHD":
-                subset_weights = np.array([len(s) for s in self.problem.subsets])
-                total_weight = np.sum(subset_weights)
-                return np.sum(np.logical_xor(self.position, best) * subset_weights) / total_weight if total_weight > 0 else 0
-            
-            elif type == "fitness":
-                return best_score - self.evaluate()
-            
             elif type == "bit-wise":
-                return best- self.position
-
-    # TO BE IMPLEMENTED, DEPENDS ON WETHER PROBABLISTIC OR HAMMING DISTANCE PSO IS USED
-    def update_velocity(self, global_best, w=0.2, c1=1.5, c2=1.5, dist_type="HD"):   
-        r1, r2 = random.random(), random.random()       
-        self.velocity = w * self.velocity + c1 * r1 * self.distance(self.best_position, type=dist_type) + c2 * r2 * self.distance(global_best, dist_type)
-
+                return best - self.position
+            
         
     # TO BE IMPLEMENTED, DEPENDS ON WETHER PROBABLISTIC OR HAMMING DISTANCE PSO IS USED
     def update_position(self):
@@ -123,24 +101,6 @@ class Particle:
         if score > self.best_score:
             self.best_position = self.position.copy()
             self.best_score = score
-
-# The problem with this implementation is :
-#   - We cannot control the number of selected subsets (bits set to 1 in self.position)
-#   - Velocity saturates at problem.m
-class ParticleFlipCount(Particle):
-    def __init__(self, problem: MaxCoveringProblem, strategy = "random"):
-        super().__init__(problem, strategy)
-        self.velocity = 0
-
-    # Velocity converges to m very fast using this formula, needs improvement
-    def update_velocity(self, global_best, w=0.7, c1=1.5, c2=1.5, dist_type="HD"):
-        super().update_velocity(global_best, w, c1, c2, dist_type)
-        self.velocity = ceil(self.velocity) if self.velocity < self.problem.m else self.problem.m
-
-    def update_position(self):
-        super().update_position()
-        selected_indices = np.random.choice(self.problem.m, size=self.velocity, replace=False)
-        self.position[selected_indices] = 1 - self.position[selected_indices]
 
 
 
@@ -155,7 +115,8 @@ class ParticleProbabilistic(Particle):
         return probabilities
     
     def update_velocity(self, global_best, w=0.2, c1=1.5, c2=1.5, dist_type="HD"):
-        super().update_velocity(global_best, w, c1, c2, dist_type)
+        r1, r2 = random.random(), random.random()       
+        self.velocity = w * self.velocity + c1 * r1 * self.distance(self.best_position, type=dist_type) + c2 * r2 * self.distance(global_best, dist_type)
         # Min max scaling (mean 0, std dev 8), to prevent velocities from overshooting
         # self.velocity = 8 * (self.velocity - np.min(self.velocity)) / (np.max(self.velocity) - np.min(self.velocity)) - 4
 
@@ -188,6 +149,7 @@ class ParticleProbabilistic(Particle):
             self.position[:] = 0  # Reset position
             self.position[selected_indices] = 1  
 
+        # NO
         elif selection_type == "deterministic":
             selected_indices = np.argsort(-probs)[:self.problem.k]
             self.position[:] = 0  
@@ -196,6 +158,18 @@ class ParticleProbabilistic(Particle):
         elif selection_type == "standard":
             self.position = np.array([1 if random.random() < p else 0 for p in probs])
             self.enforce_constraint()
+
+
+
+class RParticle(Particle):
+    def __init__(self, problem, strategy="random"):
+        super().__init__(problem, strategy)
+
+
+
+
+
+
 
 
 

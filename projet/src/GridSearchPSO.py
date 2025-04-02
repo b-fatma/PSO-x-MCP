@@ -1,6 +1,7 @@
 from MaxCoveringProblem import MaxCoveringProblem
 from PSO import PSO
 import itertools
+import time
 
 class GridSearchPSO:
     def __init__(self, problem: MaxCoveringProblem, param_grid, verbose=False):
@@ -19,7 +20,7 @@ class GridSearchPSO:
             if score > self.best_score:
                 self.best_score = score
                 self.best_params = params
-            print(f"Tested {params} - Score: {score}")
+            print(f"Tested {params} - Score: {score} \n")
         print(f"Best Params: {self.best_params} - Best Score: {self.best_score}")
 
 
@@ -37,12 +38,14 @@ def main():
         'c1': [1.5, 2.0],
         'c2': [1.5, 2.0],
         'dist_type': ['HD', 'bit-wise', 'wHD'],
-        'selection_type': ['stochastic', 'deterministic', 'standard']
+        'selection_type': ['stochastic', 'standard']
     }
 
     print(f"\nRunning Grid Search with optimize params: {param_grid}")
+    start_time = time.time()
     grid_search = GridSearchPSO(problem, param_grid)
     grid_search.run_grid_search()
+    print(f"Run took {time.time()-start_time:.2}s\n\n")
 
 if __name__ == "__main__":
     main()
