@@ -189,7 +189,7 @@ def run_GS_stochastic_mutation_BPSO():
     start_time = time.time()
     grid_search = MPGridSearchPSO(dataset_folder, test_files, param_grid)
     grid_search.run_grid_search()
-    grid_search.save_results_to_csv("../stats/mutation_bpso.csv")
+    grid_search.save_results_to_csv("../stats/stochastic_mutation_bpso.csv")
     print(f"Run took {time.time()-start_time:.2}s\n\n")
 
 
@@ -216,7 +216,7 @@ def run_GS_stochastic_BPSO_HDBPSO():
     start_time = time.time()
     grid_search = MPGridSearchPSO(dataset_folder, test_files, param_grid)
     grid_search.run_grid_search()
-    grid_search.save_results_to_csv("../stats/bpso_hdbpso.csv")
+    grid_search.save_results_to_csv("../stats/stochastic_bpso_hdbpso.csv")
     print(f"Run took {time.time()-start_time:.2}s\n\n")
 
 
