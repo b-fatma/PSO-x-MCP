@@ -56,7 +56,7 @@ class MPGridSearchPSO:
     def run_grid_search(self):
         """Run grid search in parallel across multiple files."""
         # Number of cores = 8 in the used hardware 
-        with multiprocessing.Pool(processes=multiprocessing.cpu_count()) as pool:
+        with multiprocessing.Pool(processes=multiprocessing.cpu_count() // 2) as pool:
             results = pool.map(self.run_single_instance, self.file_list)
 
         for best_score, best_params, file_results in results:
