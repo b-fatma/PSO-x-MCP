@@ -52,11 +52,11 @@ class MaxCoveringProblem:
     #     covered_elements = set().union(*[self.subsets[i] for i in range(self.m) if solution[i] == 1])
     #     return len(covered_elements) 
 
-# if __name__ == "__main__":
-#     dir = "../data/"
-#     for filename in os.listdir(dir):
-#         problem  = MaxCoveringProblem(dir + filename)
-#         print(filename, problem.m, problem.n, len(problem.subsets), problem.k)
+if __name__ == "__main__":
+    dir = "../data/"
+    for filename in os.listdir(dir):
+        problem  = MaxCoveringProblem(dir + filename)
+        print(filename, problem.m, problem.n, problem.subsets, problem.k)
 
 # if __name__ == "__main__":
 #     filename = "../testscp.txt"

@@ -16,23 +16,23 @@ class DFSTest:
 
 
     def run_tests(self, file_list):
-        for file_name in file_list:
-            file_path = os.path.join(self.dataset_folder, file_name)
-            print(f"\nRunning DFS on {file_name}...")
+        for filename in file_list:
+            file_path = os.path.join(self.dataset_folder, filename)
+            print(f"\nRunning DFS on {filename}...")
 
             problem = MaxCoveringProblem(file_path)
             dfs_solver = DFS(problem, time_limit=self.time_limit)
 
-            best_fitness, best_selection, completed, execution_time = dfs_solver.solve_time_bound_(verbose=False)
+            best_fitness, best_selection, completed, execution_time = dfs_solver.solve_time_bound(verbose=False)
             used_budget = sum(best_selection)
             valid = (used_budget == problem.k)  
 
-            print(f"File: {file_name}, m={problem.m}, n={problem.n}, k={problem.k}, "
+            print(f"File: {filename}, m={problem.m}, n={problem.n}, k={problem.k}, "
                 f"Fitness: {best_fitness}, Used Budget: {used_budget}/{problem.k}, "
                 f"Completed: {completed}, Valid: {valid}, Time: {execution_time:.2f} sec")
 
             self.results.append({
-                "filename": file_name,
+                "filename": filename,
                 "m": problem.m,
                 "n": problem.n,
                 "k": problem.k,

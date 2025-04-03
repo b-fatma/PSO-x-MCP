@@ -2,10 +2,9 @@ from MaxCoveringProblem import MaxCoveringProblem
 import os
 import numpy as np
 import random
-from math import ceil
 
 class Particle:
-    def __init__(self, problem: MaxCoveringProblem, strategy = "random"):
+    def __init__(self, problem: MaxCoveringProblem, strategy="random"):
         self.problem = problem
         self.position = self.initialize_position(strategy)
         self.best_position = np.copy(self.position)
@@ -49,6 +48,9 @@ class Particle:
                 coverage_scores = np.array([len(s) for s in self.problem.subsets])  
                 probabilities = coverage_scores / coverage_scores.sum()  # Normalize to create probabilities
                 selected_indices = np.random.choice(self.problem.m, size=self.problem.k, replace=False, p=probabilities)
+
+        else:
+            raise ValueError(f"Unknown particle initialization strategy: {strategy}")
   
         position[selected_indices] = 1
 
@@ -91,6 +93,9 @@ class Particle:
             elif type == "bit-wise":
                 return best - self.position
             
+            else:
+                raise ValueError(f"Unknown distance type: {type}")
+            
         
     # TO BE IMPLEMENTED, DEPENDS ON WETHER PROBABLISTIC OR HAMMING DISTANCE PSO IS USED
     def update_position(self):
@@ -112,6 +117,8 @@ class ParticleProbabilistic(Particle):
     def transfer_function(self, type="sigmoid"):
         if type == "sigmoid":
             probabilities = 1/(1 + np.exp(-self.velocity))
+        else:
+            raise ValueError(f"Unknown transfer function type: {type}")
         return probabilities
     
     def update_velocity(self, global_best, w=0.2, c1=1.5, c2=1.5, dist_type="HD"):
@@ -159,52 +166,11 @@ class ParticleProbabilistic(Particle):
             self.position = np.array([1 if random.random() < p else 0 for p in probs])
             self.enforce_constraint()
 
+        else:
+            raise ValueError(f"Unknown selection type: {selection_type}")
+
 
 
 class RParticle(Particle):
     def __init__(self, problem, strategy="random"):
         super().__init__(problem, strategy)
-
-
-
-
-
-
-
-
-
-
-if __name__ == "__main__":
-    # strategies = ["greedy", "random", "probabilistic", "random-greedy", "random-probabilistic"]
-    strategies = ["greedy", "random"]
-    dir = "../data/"
-    for filename in os.listdir(dir):
-        print(filename)
-        problem  = MaxCoveringProblem(dir + filename)
-        print(filename, problem.m, problem.n, len(problem.subsets), problem.k)
-        for strategy in strategies:
-            # for _ in range(100):
-                particle = Particle(problem, strategy)
-                # if particle.best_score != problem.n:
-                #     print("Non perfect position")
-                print(strategy, particle.best_score, problem.n, particle.best_score / problem.n)
-            # print([problem.subsets[i] for i in range(problem.m) if particle.position[i] == 1])
-        # break
-
-    # filename = "scp41.txt"
-    # for _ in range(5):
-    #     problem  = MaxCoveringProblem(dir + filename)
-    #     particle = Particle(problem, "random")
-    #     print("Randomly selected subsets:", particle.position, particle.best_score)
-
-
-    # if __name__ == "__main__":
-#     filename = "../testscp.txt"
-
-#     problem  = MaxCoveringProblem(filename)
-#     print(f"filename {filename}, m {problem.m}, n {problem.n}, subsets size = m {len(problem.subsets)}, subsets {problem.subsets}, k {problem.k}")
-#     print(max([len(subset) for subset in problem.subsets]))
-#     print(min([len(subset) for subset in problem.subsets]))
-#     print(len(np.unique(np.concatenate([list(subset) for subset in problem.subsets]))))
-
-
