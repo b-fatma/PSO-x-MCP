@@ -138,6 +138,12 @@ class ParticleProbabilistic(Particle):
 
         if excess > 0:
             self.position[np.random.choice(one_indices, size=excess, replace=False)] = 0   
+        else:
+            missing = self.problem.k - len(one_indices)
+            if missing > 0:
+                zero_indices = np.where(self.position == 0)[0]
+                self.position[np.random.choice(zero_indices, size=missing, replace=False)] = 1  
+
 
     def update_position(self, tf_type="sigmoid", selection_type="stochastic"):
         super().update_position()
@@ -171,6 +177,10 @@ class ParticleProbabilistic(Particle):
 
 
 
-class RParticle(Particle):
+class ParticleRestructured(Particle):
     def __init__(self, problem, strategy="random"):
         super().__init__(problem, strategy)
+
+    def update_position(self, global_best, p):
+        r1 = random.random()
+        self.position = r1 * self.best_position + (1 - r1) * global_best + p
