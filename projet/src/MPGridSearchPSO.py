@@ -164,6 +164,60 @@ def run_GS_mutation_BPSO():
     grid_search.save_results_to_csv("../stats/mutation_bpso.csv")
     print(f"Run took {time.time()-start_time:.2}s\n\n")
 
+def run_GS_stochastic_mutation_BPSO():
+    dataset_folder = "../data"
+    test_files = sorted([filename for filename in os.listdir(dataset_folder)])[::-1] 
+    print(test_files)
+
+    param_grid = {
+        # Swarm parameters
+        'num_particles': [10, 30, 100],
+        'neighborhood_size': [None, 10, 30],
+        # Particle parameters
+        'inertia_type': ['linear', 'fixed'],
+        'inertia_value': [0.2, 0.5, 0.7], # Only used if inertia_type is 'fixed'
+        'c1': [1.5, 2.0],
+        'c2': [1.5, 2.0],
+        # Particle type parameters
+        'mutate': [True],
+        'mutation_rate': [0.1, 0.3],
+        'dist_type': ['bit-wise', 'HD'], # Depends on the best performing distance 
+        'selection_type': ['stochastic']
+    }
+
+    print(f"\nRunning Grid Search with optimize params: {param_grid}")
+    start_time = time.time()
+    grid_search = MPGridSearchPSO(dataset_folder, test_files, param_grid)
+    grid_search.run_grid_search()
+    grid_search.save_results_to_csv("../stats/mutation_bpso.csv")
+    print(f"Run took {time.time()-start_time:.2}s\n\n")
+
+
+def run_GS_stochastic_BPSO_HDBPSO():
+    dataset_folder = "../data"
+    test_files = sorted([filename for filename in os.listdir(dataset_folder)])[::-1] 
+    print(test_files)
+
+    param_grid = {
+        # Swarm parameters
+        'num_particles': [10, 30, 100],
+        'neighborhood_size': [None, 10, 30],
+        # Particle parameters
+        'inertia_type': ['linear', 'fixed'],
+        'inertia_value': [0.2, 0.5, 0.7], # Only used if inertia_type is 'fixed'
+        'c1': [1.5, 2.0],
+        'c2': [1.5, 2.0],
+        # Particle type parameters
+        'dist_type': ['bit-wise', 'HD'],
+        'selection_type': ['stochastic']
+    }
+
+    print(f"\nRunning Grid Search with optimize params: {param_grid}")
+    start_time = time.time()
+    grid_search = MPGridSearchPSO(dataset_folder, test_files, param_grid)
+    grid_search.run_grid_search()
+    grid_search.save_results_to_csv("../stats/bpso_hdbpso.csv")
+    print(f"Run took {time.time()-start_time:.2}s\n\n")
 
 
 def main():
