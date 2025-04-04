@@ -275,5 +275,5 @@ def main():
     print(f"Run took {time.time()-start_time:.2}s\n\n")
 
 if __name__ == "__main__":
-    run_GS_stochastic_BPSO_HDBPSO_ryma()
+    run_GS_stochastic_BPSO_HDBPSO_fatma()
 
