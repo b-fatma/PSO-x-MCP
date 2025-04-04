@@ -276,7 +276,7 @@ def run_GS_stochastic_BPSO_wHDBPSO_ryma():
     start_time = time.time()
     grid_search = MPGridSearchPSO(dataset_folder, test_files, param_grid)
     grid_search.run_grid_search()
-    grid_search.save_results_to_csv("../stats/stochastic_bpso_whdbpsoa_c_4[1,5].csv")
+    grid_search.save_results_to_csv("../stats/stochastic_bpso_whdbpsoa_ryma.csv")
     print(f"Run took {time.time()-start_time:.2}s\n\n")
 
 def run_GS_stochastic_BPSO_wHDBPSO_fatma():
@@ -303,7 +303,7 @@ def run_GS_stochastic_BPSO_wHDBPSO_fatma():
     start_time = time.time()
     grid_search = MPGridSearchPSO(dataset_folder, test_files, param_grid)
     grid_search.run_grid_search()
-    grid_search.save_results_to_csv("../stats/stochastic_bpso_whdbpsoa_c_4[1,5].csv")
+    grid_search.save_results_to_csv("../stats/stochastic_bpso_whdbpsoa_fatma.csv")
     print(f"Run took {time.time()-start_time:.2}s\n\n")
 
 def run_GS_stochastic_BPSO_wHDBPSO_rukii():
@@ -330,7 +330,7 @@ def run_GS_stochastic_BPSO_wHDBPSO_rukii():
     start_time = time.time()
     grid_search = MPGridSearchPSO(dataset_folder, test_files, param_grid)
     grid_search.run_grid_search()
-    grid_search.save_results_to_csv("../stats/stochastic_bpso_whdbpsoa_c_4[1,5].csv")
+    grid_search.save_results_to_csv("../stats/stochastic_bpso_whdbpsoa_rukii.csv")
     print(f"Run took {time.time()-start_time:.2}s\n\n")
 
 def main():
