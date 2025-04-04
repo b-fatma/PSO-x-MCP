@@ -196,7 +196,7 @@ def run_GS_stochastic_mutation_BPSO():
 
 
 
-
+# done
 def run_GS_stochastic_BPSO_HDBPSO_ryma():
     dataset_folder = "../data"
     # test_files = sorted([filename for filename in os.listdir(dataset_folder)])[::-1] 
@@ -252,6 +252,86 @@ def run_GS_stochastic_BPSO_HDBPSO_fatma():
     grid_search.save_results_to_csv("../stats/stochastic_bpso_hdbpso_a_b_4[6,10].csv")
     print(f"Run took {time.time()-start_time:.2}s\n\n")
 
+def run_GS_stochastic_BPSO_wHDBPSO_ryma():
+    dataset_folder = "../data"
+    # test_files = sorted([filename for filename in os.listdir(dataset_folder)])[::-1] 
+    test_files = ['scpc5.txt', 'scpc4.txt', 'scpc3.txt', 'scpc2.txt', 'scpc1.txt', 'scp44.txt', 'scp43.txt', 'scp42.txt', 'scp41.txt']
+    print(test_files)
+
+    param_grid = {
+        # Swarm parameters
+        'num_particles': [10, 30, 100],
+        'neighborhood_size': [None, 10, 30],
+        # Particle parameters
+        'inertia_type': ['linear', 'fixed'],
+        'inertia_value': [0.2, 0.5, 0.7], # Only used if inertia_type is 'fixed'
+        'c1': [1.5, 2.0],
+        'c2': [1.5, 2.0],
+        # Particle type parameters
+        'dist_type': ['wHD'],
+        'selection_type': ['stochastic']
+    }
+
+    print(f"\nRunning Grid Search with optimize params: {param_grid}")
+    start_time = time.time()
+    grid_search = MPGridSearchPSO(dataset_folder, test_files, param_grid)
+    grid_search.run_grid_search()
+    grid_search.save_results_to_csv("../stats/stochastic_bpso_whdbpsoa_ryma.csv")
+    print(f"Run took {time.time()-start_time:.2}s\n\n")
+
+def run_GS_stochastic_BPSO_wHDBPSO_fatma():
+    dataset_folder = "../data"
+    # test_files = sorted([filename for filename in os.listdir(dataset_folder)])[::-1] 
+    test_files = ['scpa5.txt', 'scpa4.txt', 'scpa3.txt', 'scpa2.txt', 'scpa1.txt', 'scp45.txt', 'scp46.txt', 'scp47.txt']
+    print(test_files)
+
+    param_grid = {
+        # Swarm parameters
+        'num_particles': [10, 30, 100],
+        'neighborhood_size': [None, 10, 30],
+        # Particle parameters
+        'inertia_type': ['linear', 'fixed'],
+        'inertia_value': [0.2, 0.5, 0.7], # Only used if inertia_type is 'fixed'
+        'c1': [1.5, 2.0],
+        'c2': [1.5, 2.0],
+        # Particle type parameters
+        'dist_type': ['wHD'],
+        'selection_type': ['stochastic']
+    }
+
+    print(f"\nRunning Grid Search with optimize params: {param_grid}")
+    start_time = time.time()
+    grid_search = MPGridSearchPSO(dataset_folder, test_files, param_grid)
+    grid_search.run_grid_search()
+    grid_search.save_results_to_csv("../stats/stochastic_bpso_whdbpsoa_fatma.csv")
+    print(f"Run took {time.time()-start_time:.2}s\n\n")
+
+def run_GS_stochastic_BPSO_wHDBPSO_rukii():
+    dataset_folder = "../data"
+    # test_files = sorted([filename for filename in os.listdir(dataset_folder)])[::-1] 
+    test_files = ['scpb5.txt', 'scpb4.txt', 'scpb3.txt', 'scpb2.txt', 'scpb1.txt', 'scp48.txt', 'scp49.txt', 'scp410.txt']
+    print(test_files)
+
+    param_grid = {
+        # Swarm parameters
+        'num_particles': [10, 30, 100],
+        'neighborhood_size': [None, 10, 30],
+        # Particle parameters
+        'inertia_type': ['linear', 'fixed'],
+        'inertia_value': [0.2, 0.5, 0.7], # Only used if inertia_type is 'fixed'
+        'c1': [1.5, 2.0],
+        'c2': [1.5, 2.0],
+        # Particle type parameters
+        'dist_type': ['wHD'],
+        'selection_type': ['stochastic']
+    }
+
+    print(f"\nRunning Grid Search with optimize params: {param_grid}")
+    start_time = time.time()
+    grid_search = MPGridSearchPSO(dataset_folder, test_files, param_grid)
+    grid_search.run_grid_search()
+    grid_search.save_results_to_csv("../stats/stochastic_bpso_whdbpsoa_rukii.csv")
+    print(f"Run took {time.time()-start_time:.2}s\n\n")
 
 def main():
     dataset_folder = "../data"
