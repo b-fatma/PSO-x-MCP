@@ -52,20 +52,20 @@ class MaxCoveringProblem:
     #     covered_elements = set().union(*[self.subsets[i] for i in range(self.m) if solution[i] == 1])
     #     return len(covered_elements) 
 
-if __name__ == "__main__":
-    dir = "../data/"
-    for filename in os.listdir(dir):
-        problem  = MaxCoveringProblem(dir + filename)
-        print(filename, problem.m, problem.n, problem.subsets, problem.k)
-
 # if __name__ == "__main__":
-#     filename = "../testscp.txt"
+#     dir = "../data/"
+#     for filename in os.listdir(dir):
+#         problem  = MaxCoveringProblem(dir + filename)
+#         print(filename, problem.m, problem.n, problem.subsets, problem.k)
 
-#     problem  = MaxCoveringProblem(filename)
-#     print(f"filename {filename}, m {problem.m}, n {problem.n}, subsets size = m {len(problem.subsets)}, subsets {problem.subsets}, k {problem.k}")
-#     print(max([len(subset) for subset in problem.subsets]))
-#     print(min([len(subset) for subset in problem.subsets]))
-#     print(len(np.unique(np.concatenate([list(subset) for subset in problem.subsets]))))
+if __name__ == "__main__":
+    filename = "../testscp.txt"
+
+    problem  = MaxCoveringProblem(filename)
+    print(f"filename {filename}, m {problem.m}, n {problem.n}, subsets size = m {len(problem.subsets)}, subsets {problem.subsets}, k {problem.k}")
+    print(max([len(subset) for subset in problem.subsets]))
+    print(min([len(subset) for subset in problem.subsets]))
+    print(len(np.unique(np.concatenate([list(subset) for subset in problem.subsets]))))
 
 
     

@@ -107,6 +107,18 @@ class Particle:
             self.best_position = self.position.copy()
             self.best_score = score
 
+    def enforce_constraint(self):
+        one_indices = np.where(self.position == 1)[0]
+        excess = len(one_indices) - self.problem.k
+
+        if excess > 0:
+            self.position[np.random.choice(one_indices, size=excess, replace=False)] = 0   
+        else:
+            missing = self.problem.k - len(one_indices)
+            if missing > 0:
+                zero_indices = np.where(self.position == 0)[0]
+                self.position[np.random.choice(zero_indices, size=missing, replace=False)] = 1  
+
 
 
 class ParticleProbabilistic(Particle):
@@ -131,18 +143,6 @@ class ParticleProbabilistic(Particle):
     def mutate_velocity(self, mutation_rate=0.3):
         mutation_mask = np.random.rand(self.problem.m) < mutation_rate
         self.velocity[mutation_mask] *= -1
-
-    def enforce_constraint(self):
-        one_indices = np.where(self.position == 1)[0]
-        excess = len(one_indices) - self.problem.k
-
-        if excess > 0:
-            self.position[np.random.choice(one_indices, size=excess, replace=False)] = 0   
-        else:
-            missing = self.problem.k - len(one_indices)
-            if missing > 0:
-                zero_indices = np.where(self.position == 0)[0]
-                self.position[np.random.choice(zero_indices, size=missing, replace=False)] = 1  
 
 
     def update_position(self, tf_type="sigmoid", selection_type="stochastic"):
@@ -170,6 +170,7 @@ class ParticleProbabilistic(Particle):
 
         elif selection_type == "standard":
             self.position = np.array([1 if random.random() < p else 0 for p in probs])
+            print(f"Before: {sum(self.position)}")
             self.enforce_constraint()
 
         else:
@@ -184,3 +185,7 @@ class ParticleRestructured(Particle):
     def update_position(self, global_best, p):
         r1 = random.random()
         self.position = r1 * self.best_position + (1 - r1) * global_best + p
+        print(self.position)
+        self.position = (self.position > np.random.random(self.problem.m)).astype(int)
+        print(f"Before: {sum(self.position)}")
+        self.enforce_constraint()

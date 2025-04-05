@@ -117,7 +117,7 @@ class PSO:
             
 
 if __name__ == "__main__":
-    filename = "../data/scpc1.txt"  
+    filename = "../data/scp41.txt"  
     problem = MaxCoveringProblem(filename)
     swarm = PSO(problem, num_particles=30, neighborhood_size=30, inertia_type="linear", max_iterations=500, strategy="random", dist_type="bit-wise", selection_type="standard", particle_type="probabilistic",checkpoints=[100,200])  # Add particle_type
     best_position, best_score, scores = swarm.optimize(verbose=True)
