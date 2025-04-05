@@ -11,6 +11,8 @@ class Particle:
         self.best_score = self.evaluate()
 
     def initialize_position(self, strategy: str):
+        """We implemented several initialization strategies but we only discussed and experimented with random initialization
+        because the other variants lead to premature convergence"""
         position = np.zeros(self.problem.m, dtype=int)
 
         # Randomly select exactly k subsets
@@ -62,39 +64,18 @@ class Particle:
         return len(covered_elements) 
     
     
-    def distance(self, best, best_score = 0, type="HD"):
-            """
-            Bitwise XOR (Standard in BPSO) aka Hamming distance
-            OR Normalized hamming distance (we divide by /m), helps in velocity scaling
-                (x−pbest)=sum(x xor pbest)
-                Used in standard Binary PSO (Kennedy & Eberhart, 1997).
-
-            Set-Based Difference (for Covering Problems) | it is computationally expensive 
-                (x−pbest)={subsets in pbest but not in x}
-
-                Instead of treating x and pbest​ as bit vectors, treat them as sets of selected elements.
-
-                This is useful for set-based optimization problems like MCP because it explicitly tells which elements are missing rather than just counting mismatches.
-
-            Weighted Hamming Distance
-            (We can normalized wHD as well) 
-                wDH=sum(wi(xi xor pbest,i))
-
-                Assign different weights to different bits based on their importance (the coverage contribution of a subset).
-
-                Useful for MCP where some subsets cover more elements than others.
-            """
-            if type == "HD":
-                return np.sum(np.logical_xor(self.position, best))
-            
-            elif type == "wHD":
-                return np.sum(np.logical_xor(self.position, best) * np.array([len(s) for s in self.problem.subsets]))
-            
-            elif type == "bit-wise":
-                return best - self.position
-            
-            else:
-                raise ValueError(f"Unknown distance type: {type}")
+    def distance(self, best, type="HD"):       
+        if type == "HD":
+            return np.sum(np.logical_xor(self.position, best))
+        
+        elif type == "wHD":
+            return np.sum(np.logical_xor(self.position, best) * np.array([len(s) for s in self.problem.subsets]))
+        
+        elif type == "bit-wise":
+            return best - self.position
+        
+        else:
+            raise ValueError(f"Unknown distance type: {type}")
             
         
     # TO BE IMPLEMENTED, DEPENDS ON WETHER PROBABLISTIC OR HAMMING DISTANCE PSO IS USED
@@ -135,9 +116,7 @@ class ParticleProbabilistic(Particle):
     
     def update_velocity(self, global_best, w=0.2, c1=1.5, c2=1.5, dist_type="HD"):
         r1, r2 = random.random(), random.random()       
-        self.velocity = w * self.velocity + c1 * r1 * self.distance(self.best_position, type=dist_type) + c2 * r2 * self.distance(global_best, dist_type)
-        # Min max scaling (mean 0, std dev 8), to prevent velocities from overshooting
-        # self.velocity = 8 * (self.velocity - np.min(self.velocity)) / (np.max(self.velocity) - np.min(self.velocity)) - 4
+        self.velocity = w * self.velocity + c1 * r1 * self.distance(self.best_position, type=dist_type) + c2 * r2 * self.distance(global_best, type=dist_type)
 
     # Based on the paper :  https://www.researchgate.net/publication/31208097_Binary_Particle_Swarm_Optimization_with_Bit_Change_Mutation
     def mutate_velocity(self, mutation_rate=0.3):
@@ -162,7 +141,7 @@ class ParticleProbabilistic(Particle):
             self.position[:] = 0  # Reset position
             self.position[selected_indices] = 1  
 
-        # NO
+        # This method was not used in our experiments because it leads to premature convergence
         elif selection_type == "deterministic":
             selected_indices = np.argsort(-probs)[:self.problem.k]
             self.position[:] = 0  
@@ -178,6 +157,8 @@ class ParticleProbabilistic(Particle):
 
 
 
+# We implemented BRPSO but did not discuss it nor experiment with it
+# It's based on the following paper: https://www.mdpi.com/2313-7673/8/2/266
 class ParticleRestructured(Particle):
     def __init__(self, problem, strategy="random"):
         super().__init__(problem, strategy)
