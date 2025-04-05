@@ -100,7 +100,7 @@ class DFS:
             return self.best_fitness, self.best_selection, True, time.time() - start_time  
 
         # Case 1: Skip the current subset
-        new_fitness, new_selection, completed_skip, _ = self.solve_time_bound_(
+        new_fitness, new_selection, completed_skip, _ = self.solve_time_bound(
             index + 1, current_budget, covered_elements, selected[:], start_time, verbose
         )
 
@@ -113,7 +113,7 @@ class DFS:
         if current_budget < self.problem.k:
             new_selected = selected[:]
             new_selected[index] = 1  
-            new_fitness, new_selection, completed_select, _ = self.solve_time_bound_(
+            new_fitness, new_selection, completed_select, _ = self.solve_time_bound(
                 index + 1, 
                 current_budget + 1, 
                 covered_elements.union(self.problem.subsets[index]),  
@@ -135,5 +135,5 @@ class DFS:
 if __name__ == "__main__":
     problem = MaxCoveringProblem("../data/scp41.txt")
     dfs_solver  = DFS(problem, time_limit=10000)
-    best_fitness, best_selection, completed, exec_time = dfs_solver.solve_time_bound_()
+    best_fitness, best_selection, completed, exec_time = dfs_solver.solve_time_bound()
     print(f"Fitness = {best_fitness}, Used budget = {sum(best_selection)} / {problem.k}, Execution time {exec_time}")
