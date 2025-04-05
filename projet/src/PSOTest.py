@@ -88,4 +88,4 @@ if __name__ == "__main__":
     pso_test = PSOTest(dataset_folder, test_files, best_param)
     pso_test.run_pso()
 
-    pso_test.save_results_to_csv("../stats/pso_results_c.csv")
+    pso_test.save_results_to_csv("../stats/pso_results_4.csv")
