@@ -47,17 +47,7 @@ class MaxCoveringProblem:
 
             return m, n, subsets
         
-    # def evaluate(self, solution: list[int]):
-    #     # Calculate the number of unique covered elements for the current position
-    #     covered_elements = set().union(*[self.subsets[i] for i in range(self.m) if solution[i] == 1])
-    #     return len(covered_elements) 
-
-# if __name__ == "__main__":
-#     dir = "../data/"
-#     for filename in os.listdir(dir):
-#         problem  = MaxCoveringProblem(dir + filename)
-#         print(filename, problem.m, problem.n, problem.subsets, problem.k)
-
+        
 if __name__ == "__main__":
     filename = "../testscp.txt"
 

@@ -18,7 +18,7 @@ class Particle:
         # Randomly select exactly k subsets
         if strategy == "random":
             selected_indices = np.random.choice(self.problem.m, size=self.problem.k, replace=False)
-        
+           
         # Select k subsets that cover the most uncovered elements, 
         # the underlying assumption is that subsets with more elements, combined, cover more elements
         # it is important to note that this assumption is unwarranted 
@@ -78,7 +78,6 @@ class Particle:
             raise ValueError(f"Unknown distance type: {type}")
             
         
-    # TO BE IMPLEMENTED, DEPENDS ON WETHER PROBABLISTIC OR HAMMING DISTANCE PSO IS USED
     def update_position(self):
         pass
 
