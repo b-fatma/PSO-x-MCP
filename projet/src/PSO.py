@@ -47,6 +47,7 @@ class PSO:
                 self.global_best_score = particle.best_score
 
         self.initial_best_score = self.global_best_score
+        print(f"Initial Best Score: {self.initial_best_score}")
 
         return particles
     
@@ -80,10 +81,9 @@ class PSO:
                 if particle.best_score > self.global_best_score:
                     self.global_best_position = np.copy(particle.best_position)
                     self.global_best_score = particle.best_score
+                    print(f"Iteration {iteration + 1}/{self.max_iterations} - Best Score: {self.global_best_score}")
                 
-
-            if verbose:
-                print(f"Iteration {iteration + 1}/{self.max_iterations} - Best Score: {self.global_best_score}")
+        
 
             # Capture execution time for this iteration
             end_time = time.time()
