@@ -72,7 +72,7 @@ if __name__ == "__main__":
         'neighborhood_size': 30,
         # Particle parameters
         'inertia_type': 'fixed',
-        'inertia_value': 0.5, 
+        'inertia_value': 0.7, 
         'c1': 1.5,
         'c2': 2.0,
         # Particle type parameters
