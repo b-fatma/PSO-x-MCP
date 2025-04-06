@@ -28,6 +28,10 @@ class PSO:
         self.selection_type = selection_type
         self.mutate = mutate
         self.mutation_rate = mutation_rate
+
+        # To avoid treating max_iterations as a hyperparameter, we introduce checkpoints.
+        # We define a max_iterations and a checkpoints which is a list of iteration values.
+        # PSO results will be recorded at each checkpoint iteration.
         self.checkpoints = checkpoints if checkpoints else None
 
 
