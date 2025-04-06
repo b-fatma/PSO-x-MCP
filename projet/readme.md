@@ -2,7 +2,7 @@
 This repository includes implementation of PSO to solve a variant of MCP with an additional constraint of selecting exactly k subsets. Naturally, this entails an adaptation of PSO to the discrete binary nature of the problem.
 
 ## Repository Structure
-`
+```
 ├── readme.md                 # Project overview and documentation
 ├── requirements.txt          # Python dependencies
 
@@ -37,7 +37,7 @@ This repository includes implementation of PSO to solve a variant of MCP with an
 │   ├── standard_whdbpso.csv
 │   ├── stochastic_bpso_hdbpso.csv
 │   └── stochastic_whdbpso.csv
-`
+```
 
 ## Relevant files in src/
 - demo.py provides a short script to run PSO, Depth-First-Search (DFS) with a timeout limit of 30s, and Greedy Algorithm on scp41.txt.
