@@ -2,7 +2,7 @@
 This repository includes implementation of PSO to solve a variant of MCP with an additional constraint of selecting exactly k subsets. Naturally, this entails an adaptation of PSO to the discrete binary nature of the problem.
 
 ## Repository Structure
-.
+`
 ├── readme.md                 # Project overview and documentation
 ├── requirements.txt          # Python dependencies
 
