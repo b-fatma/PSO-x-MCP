@@ -204,7 +204,7 @@ def run_GS_mutation():
         'neighborhood_size': [30],
         # Particle parameters
         'inertia_type': ['fixed'],
-        'inertia_value': [0.5], # Only used if inertia_type is 'fixed'
+        'inertia_value': [0.7], # Only used if inertia_type is 'fixed'
         'c1': [1.5],
         'c2': [2.0],
         # Particle type parameters

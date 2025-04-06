@@ -83,9 +83,9 @@ if __name__ == "__main__":
     }
 
     dataset_folder = "../data"
-    test_files = sorted([filename for filename in os.listdir(dataset_folder) if filename.startswith("scpa")])[::-1] 
+    test_files = sorted([filename for filename in os.listdir(dataset_folder)])[::-1] 
 
     pso_test = PSOTest(dataset_folder, test_files, best_param)
     pso_test.run_pso()
 
-    pso_test.save_results_to_csv("../stats/pso_results_a2.csv")
+    pso_test.save_results_to_csv("../stats/pso_results_corrected.csv")
