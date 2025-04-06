@@ -11,7 +11,7 @@ def run_algorithm(filename, algorithm):
             'num_particles': 100,
             'neighborhood_size': 30,
             'inertia_type': 'fixed',
-            'inertia_value': 0.5,
+            'inertia_value': 0.7,
             'c1': 1.5,
             'c2': 2.0,
             'mutate': True,
@@ -41,14 +41,15 @@ def run_all_algorithms(filename, algorithms):
     for algorithm in algorithms:
         print(f"\nRunning {algorithm} on {filename}...")
         best_score = run_algorithm(filename, algorithm)
-        results[algorithm] = {
-            "best_score": best_score
-        }
+        coverage_rate = best_score /  MaxCoveringProblem(filename).n
         print(f"Algorithm: {algorithm}, Best Score: {best_score}")
+        print(f"Coverage Rate: {coverage_rate:.2%}")
     return results
 
 def main():
-    run_all_algorithms("../data/scp41.txt", ["pso","greedy", "dfs"])
+    file  = "scp41.txt"
+    print(f"\nRunning algorithms on {file}...")
+    run_all_algorithms(f"../data/{file}", ["pso","greedy", "dfs"])
 
 if __name__ == "__main__":
     main()
